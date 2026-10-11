@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LibraryX · BIT Sindri</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#F8FAFC;--sf:#fff;--sf2:#F1F5F9;--tx:#0F172A;--mu:#64748B;--bd:#E2E8F0;--ac:#0D9488;--acd:#0F766E;--ok:#15803D;--okb:#DCFCE7;--wn:#B45309;--wnb:#FEF3C7;--er:#B91C1C;--erb:#FEE2E2;--in:#1D4ED8;--inb:#DBEAFE}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1220;--sf:#111A2E;--sf2:#18233B;--tx:#F1F5F9;--mu:#94A3B8;--bd:#24304A;--ac:#2DD4BF;--acd:#5EEAD4;--ok:#86EFAC;--okb:#14351F;--wn:#FCD34D;--wnb:#3A2C0B;--er:#FCA5A5;--erb:#3B1414;--in:#93C5FD;--inb:#14274D}}
+:root[data-theme="dark"]{--bg:#0B1220;--sf:#111A2E;--sf2:#18233B;--tx:#F1F5F9;--mu:#94A3B8;--bd:#24304A;--ac:#2DD4BF;--acd:#5EEAD4;--ok:#86EFAC;--okb:#14351F;--wn:#FCD34D;--wnb:#3A2C0B;--er:#FCA5A5;--erb:#3B1414;--in:#93C5FD;--inb:#14274D}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Inter,"Plus Jakarta Sans",system-ui,sans-serif}
+a{color:inherit;text-decoration:none}h1,h2,h3{margin:0;line-height:1.2}
+.w{max-width:1120px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--sf);border-bottom:1px solid var(--bd)}
+.hd{display:flex;align-items:center;gap:12px;height:64px}
+.logo{font-weight:800;font-size:20px}.logo b{color:var(--ac)}
+nav{display:flex;gap:4px}nav a{padding:8px 12px;border-radius:8px;font-size:14px;color:var(--mu);font-weight:500}
+nav a:hover,nav a.on{background:var(--sf2);color:var(--tx)}
+.sb{flex:1;max-width:380px;margin-left:auto}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);color:var(--tx);font:inherit}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;justify-content:center;padding:10px 16px;border-radius:10px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);font:600 14px inherit;cursor:pointer;transition:.15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px #0001}.btn:active{transform:none}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#04201C}.btn.p:hover{background:var(--acd)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.ic{padding:8px 10px;position:relative}.dot{position:absolute;top:2px;right:2px;background:var(--er);color:#fff;border-radius:99px;font-size:10px;padding:0 5px}
+.hero{background:linear-gradient(135deg,#0F172A,#134E4A);color:#fff;border-radius:20px;padding:48px 28px;margin:20px 0;animation:f .5s}
+.hero h1{font-size:clamp(28px,5vw,44px);max-width:620px}.hero p{color:#CBD5E1;max-width:520px}
+.hero input{max-width:480px;color:#0F172A;background:#fff}
+@keyframes f{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.g{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}.g.l{grid-template-columns:1fr}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;transition:.2s;animation:f .3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px #0F172A18}
+.g.l .bk{display:flex;gap:14px}.g.l .cv{width:90px;flex:none}
+.cv{aspect-ratio:3/4;border-radius:10px;padding:10px;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:flex-end;margin-bottom:10px;text-shadow:0 1px 2px #0006}
+.g.l .cv{margin:0}
+.mu{color:var(--mu);font-size:13px}
+.bd{display:inline-flex;gap:4px;align-items:center;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.ok{background:var(--okb);color:var(--ok)}.wn{background:var(--wnb);color:var(--wn)}.er{background:var(--erb);color:var(--er)}.in{background:var(--inb);color:var(--in)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.sp{justify-content:space-between}
+h2.s{font-size:22px;margin:32px 0 14px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:16px;overflow-x:auto}
+.tabs button{background:none;border:0;padding:10px 14px;font:600 14px inherit;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ac);border-color:var(--ac)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--bd)}th{color:var(--mu);font-weight:600}
+.ov{overflow-x:auto}
+.empty{text-align:center;padding:48px 16px;color:var(--mu)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;z-index:50;animation:f .2s}
+.bar{height:10px;border-radius:5px;background:var(--ac)}
+.st{font-size:28px;font-weight:800}
+footer{margin-top:48px;border-top:1px solid var(--bd);padding:24px 0;color:var(--mu);font-size:13px}
+.mb{display:none}
+@media(max-width:760px){nav{display:none;position:absolute;top:64px;left:0;right:0;background:var(--sf);flex-direction:column;padding:8px;border-bottom:1px solid var(--bd)}nav.open{display:flex}.mb{display:inline-flex}.sb{max-width:none}.logo span{display:none}}
+</style></head><body>
+<header><div class="w hd">
+<button class="btn ic mb" id="mn" aria-label="Menu">☰</button>
+<a href="#/" class="logo">📚<span> Library<b>X</b></span></a>
+<nav id="nav"></nav>
+<div class="sb"><input id="q" placeholder="Search title, author, ISBN…" aria-label="Search"></div>
+<a href="#/saved" class="btn ic" aria-label="Saved books">♥<span class="dot" id="sc"></span></a>
+<button class="btn ic" id="bell" aria-label="Notifications">🔔<span class="dot">2</span></button>
+<select id="role" aria-label="Role" style="width:auto"><option>Student</option><option>Librarian</option></select>
+</div></header>
+<main class="w" id="app"></main>
+<footer><div class="w row sp"><span>LibraryX · BIT Sindri · Team JoBi · HACTOBERFEST 2026</span><span>About · Help · Access policies · Contact</span></div></footer>
+<script>
+/* ─────────────────────────────────────────────────────────
+   LibraryX — frontend wired to Google Sheets backend
+   Replace the URL below with your deployed Apps Script URL.
+   ───────────────────────────────────────────────────────── */
+const API_URL = "https://script.google.com/macros/s/AKfycbzKwhnWrjhkNAPpQRTKi2XQGPIPkC0hgUSKfG2O3dtNAeWThhTNTkaesZLEu7Vqg4QSAA/exec";
+const CURRENT_USER = "21BIT101";       // logged-in student for the demo
+const ANCHOR_DATE = "2026-10-11";      // "today" for the demo
+
+const $ = s => document.querySelector(s);
+const ls = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch (e) { return d } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} }
+};
+
+/* ── Fallback colours if a row's coverColor is missing ── */
+const COL = [["#0F766E","#134E4A"],["#1E3A8A","#312E81"],["#9D174D","#7C2D12"],
+             ["#065F46","#1E40AF"],["#7C3AED","#1E1B4B"],["#B45309","#78350F"]];
+
+/* ── Empty data holders. Populated by fetchData(). ── */
+let BK = [], RS = [], loans = [], mine = [], hist = [], users = [];
+let CAT = [], CI = {};
+
+/* ── UI state ── */
+let saved = ls.get("lx_saved", []);
+let res   = ls.get("lx_res", []);
+let role  = "Student", view = "grid", tab = 0;
+
+/* ─────────────── Data loading ─────────────── */
+const dstr = v => {                      // normalise a date to YYYY-MM-DD
+  if (!v) return "";
+  if (v instanceof Date) return v.toISOString().slice(0,10);
+  const s = String(v);
+  return s.length > 10 ? s.slice(0,10) : s;
+};
+
+async function fetchData() {
+  showLoading("Connecting to library database…");
+  try {
+    const r = await fetch(API_URL, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+
+    /* Books + copy aggregation */
+    const rawBooks = data.books || [];
+    const copies   = data.bookcopies || [];
+    BK = rawBooks.map(b => {
+      const list = copies.filter(c => String(c.bookId) === String(b.id));
+      const avail = list.filter(c => String(c.status).toLowerCase() === "available").length;
+      const shelf = list[0]?.shelfLocation || "—";
+      return {
+        id:  Number(b.id),
+        t:   b.title,
+        a:   b.author,
+        sub: b.subject,
+        y:   Number(b.year),
+        isbn: b.isbn,
+        ed:  b.edition,
+        pub: b.publisher,
+        d:   b.description,
+        col: b.coverColor || null,
+        tags: String(b.tags || "").split(",").map(s => s.trim()).filter(Boolean),
+        c:  list.length,
+        av: avail,
+        sh: shelf
+      };
+    });
+
+    /* Resources */
+    RS = (data.resources || []).map(r => ({
+      t:    r.title,
+      type: r.type,
+      sub:  r.subject,
+      tags: String(r.tags || "").split(",").map(s => s.trim()).filter(Boolean),
+      u:    r.url
+    }));
+
+    /* Users (kept for future pages like librarian student search) */
+    users = data.users || [];
+
+    /* Loans */
+    loans = (data.loans || []).map(l => ({
+      b:   Number(l.bookId),
+      s:   l.studentId,
+      out: dstr(l.issueDate),
+      due: dstr(l.dueDate),
+      ret: dstr(l.returnDate)
+    }));
+
+    /* My Library slices for the current user */
+    mine = loans.filter(l => l.s === CURRENT_USER && !l.ret);
+    hist = loans.filter(l => l.s === CURRENT_USER &&  l.ret)
+                .map(l => ({ b: l.b, ret: l.ret }));
+
+    /* Derived lookups */
+    CAT = [...new Set(BK.map(b => b.sub))];
+    CI  = { "Computer Science":"💻","Mathematics":"∑","Mechanical":"⚙️",
+            "Electronics":"🔌","Civil":"🏗️","Physics":"🔬" };
+
+    route();
+  } catch (err) {
+    console.error(err);
+    showError("Could not reach the library database. Check the API URL and try again.");
+  }
+}
+
+function showLoading(msg) {
+  $("#app").innerHTML = `
+    <div class="empty" style="padding:96px 16px">
+      <div style="font-size:40px">⏳</div>
+      <h3>${msg}</h3>
+      <p class="mu">Fetching live data from Google Sheets…</p>
+    </div>`;
+}
+function showError(msg) {
+  $("#app").innerHTML = `
+    <div class="empty" style="padding:96px 16px">
+      <div style="font-size:40px">⚠️</div>
+      <h3>Something went wrong</h3>
+      <p class="mu">${msg}</p>
+      <button class="btn p" id="retry" style="margin-top:12px">Retry</button>
+    </div>`;
+  $("#retry").onclick = fetchData;
+}
+
+/* ─────────────── Helpers ─────────────── */
+const bk = id => BK.find(b => b.id == id);
+const days = d => Math.ceil((new Date(d) - new Date(ANCHOR_DATE)) / 864e5);
+const due = d => {
+  if (!d) return `<span class="bd in">—</span>`;
+  const n = days(d);
+  return n < 0 ? `<span class="bd er">⚠ Overdue ${-n}d</span>`
+       : n <= 3 ? `<span class="bd wn">Due in ${n}d</span>`
+       :          `<span class="bd ok">Due ${d}</span>`;
+};
+const empty = (i,t,s) => `<div class="empty"><div style="font-size:40px">${i}</div><h3>${t}</h3><p>${s||""}</p></div>`;
+const lib = () => role === "Librarian";
+
+const stat = b => b.av > 0
+  ? ["ok", `✔ Available (${b.av})`]
+  : res.includes(b.id)
+    ? ["in", "⏳ Reserved by you"]
+    : b.c > 0
+      ? ["wn", "● Issued · reservable"]
+      : ["er", "✖ Unavailable"];
+
+const badge = b => { const [c,t] = stat(b); return `<span class="bd ${c}">${t}</span>` };
+
+const cover = b => {
+  const g = b.col ? [b.col, b.col] : COL[b.id % 6];
+  return `<div class="cv" style="background:linear-gradient(135deg,${g.join(",")})">${b.t}</div>`;
+};
+
+const card = b => `<div class="card bk">
+  <a href="#/book/${b.id}" class="cv-w">${cover(b)}</a>
+  <div style="flex:1">
+    <a href="#/book/${b.id}"><b>${b.t}</b></a>
+    <div class="mu">${b.a} · ${b.y}</div>
+    <div class="row sp" style="margin-top:8px">
+      ${badge(b)}
+      <button class="btn" style="padding:4px 10px" data-save="${b.id}" aria-label="Save">
+        ${saved.includes(b.id) ? "♥" : "♡"}
+      </button>
+    </div>
+  </div>
+</div>`;
+
+function toast(m) {
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = m;
+  document.body.append(t);
+  setTimeout(() => t.remove(), 2200);
+}
+function save(id) {
+  saved = saved.includes(id) ? saved.filter(x => x != id) : [...saved, id];
+  ls.set("lx_saved", saved);
+  toast(saved.includes(id) ? "Saved to your list" : "Removed from saved");
+  route();
+}
+function reserve(id) {
+  if (!res.includes(id)) { res.push(id); ls.set("lx_res", res); toast("Reservation requested — you're on the waitlist"); }
+  route();
+}
+
+/* ─────────────── Navigation ─────────────── */
+function nav() {
+  const l = [["#/","Discover"],["#/catalogue","Catalogue"],["#/resources","Digital Resources"],
+             ["#/rescue","Learning Rescue"],["#/library","My Library"]];
+  if (lib()) l.push(["#/dashboard","Librarian"]);
+  const h = location.hash || "#/";
+  $("#nav").innerHTML = l.map(([u,t]) =>
+    `<a href="${u}" class="${h === u ? "on" : ""}">${t}</a>`).join("");
+}
+
+/* ─────────────── Pages ─────────────── */
+const P = {
+  home() {
+    return `<section class="hero">
+      <h1>Find your next read, faster.</h1>
+      <p>Search the BIT Sindri library, check live availability and reserve in a tap.</p>
+      <div style="margin-top:20px"><input id="hq" placeholder="Try “network security”…" aria-label="Search books"></div>
+    </section>
+    <h2 class="s">Browse by subject</h2>
+    <div class="g" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+      ${CAT.map(c => `<a class="card" href="#/catalogue?c=${encodeURIComponent(c)}" style="text-align:center">
+        <div style="font-size:30px">${CI[c] || "📖"}</div><b>${c}</b></a>`).join("")}
+    </div>
+    <h2 class="s">Featured books</h2>
+    <div class="g">${BK.slice(0,4).map(card).join("")}</div>
+    <a href="#/rescue" class="card" style="display:block;margin-top:28px;background:linear-gradient(135deg,var(--sf2),var(--sf))">
+      <h3>🛟 Book checked out? Try Learning Rescue</h3>
+      <p class="mu">Tell us what you want to learn and we'll find the best available alternatives.</p>
+    </a>
+    <h2 class="s">Digital resources</h2>
+    <div class="g">${RS.slice(0,3).map(rc).join("")}</div>`;
+  },
+
+  catalogue() {
+    const p = new URLSearchParams((location.hash.split("?")[1] || ""));
+    return `<h2 class="s">Catalogue</h2>
+    <div class="row">
+      <div style="flex:2;min-width:200px"><input id="cq" value="${p.get("q")||""}" placeholder="Title, author, subject, ISBN" aria-label="Search catalogue"></div>
+      <select id="cc" style="flex:1;min-width:130px"><option value="">All subjects</option>
+        ${CAT.map(c => `<option ${p.get("c")===c?"selected":""}>${c}</option>`).join("")}</select>
+      <select id="ca" style="flex:1;min-width:130px"><option value="">Any availability</option><option value="1">Available now</option></select>
+      <select id="cs" style="flex:1;min-width:130px"><option value="t">Title A–Z</option><option value="y">Newest</option></select>
+      <button class="btn" id="vw">${view==="grid"?"☰ List":"▦ Grid"}</button>
+    </div>
+    <div id="cr" style="margin-top:16px"></div>`;
+  },
+
+  book(id) {
+    const b = bk(id);
+    if (!b) return empty("🔍","Book not found");
+    return `<a href="#/catalogue" class="mu">← Back to catalogue</a>
+    <div class="row" style="align-items:flex-start;margin-top:14px;gap:28px">
+      <div style="width:240px;max-width:100%">${cover(b)}</div>
+      <div style="flex:1;min-width:260px">
+        <h1>${b.t}</h1>
+        <p class="mu">${b.a} · ${b.ed} ed. · ${b.pub} · ${b.y}</p>
+        <div class="row">${badge(b)}<span class="bd in">${b.sub}</span></div>
+        <p>${b.d}</p>
+        <table>
+          <tr><th>ISBN</th><td>${b.isbn}</td></tr>
+          <tr><th>Shelf</th><td>📍 ${b.sh}</td></tr>
+          <tr><th>Copies</th><td>${b.av} of ${b.c} available</td></tr>
+        </table>
+        <div class="row" style="margin-top:16px">
+          <button class="btn" data-save="${b.id}">${saved.includes(b.id)?"♥ Saved":"♡ Save"}</button>
+          ${b.av ? "" : `<button class="btn p" data-res="${b.id}" ${res.includes(b.id)?"disabled":""}>
+            ${res.includes(b.id)?"Reservation pending":"Reserve / join waitlist"}</button>`}
+          ${b.av
+            ? `<a class="btn p" href="#/rescue">Pick up at ${b.sh}</a>`
+            : `<a class="btn" href="#/rescue">Find alternatives</a>`}
+        </div>
+      </div>
+    </div>
+    <h2 class="s">Related books</h2>
+    <div class="g">${BK.filter(x => x.sub===b.sub && x.id!==b.id).slice(0,4).map(card).join("")}</div>`;
+  },
+
+  library() {
+    const T = ["Current loans","Reservations","History"];
+    const body = [
+      mine.length
+        ? `<div class="g l">${mine.map(m => {
+            const b = bk(m.b); if (!b) return "";
+            return `<div class="card row sp"><div><b>${b.t}</b><div class="mu">${b.a}</div></div>${due(m.due)}</div>`;
+          }).join("")}</div>`
+        : empty("📗","No active loans"),
+      res.length
+        ? `<div class="g l">${res.map(i => { const b = bk(i); if (!b) return "";
+            return `<div class="card row sp"><b>${b.t}</b><span class="bd in">Pending</span></div>`; }).join("")}</div>`
+        : empty("⏳","No reservations","Reserve unavailable books from their page."),
+      hist.length
+        ? `<div class="g l">${hist.map(h => { const b = bk(h.b); if (!b) return "";
+            return `<div class="card row sp"><b>${b.t}</b><span class="mu">Returned ${h.ret}</span></div>`; }).join("")}</div>`
+        : empty("📚","No borrowing history yet")
+    ];
+    return `<h2 class="s">My Library</h2>
+    <div class="card row" style="margin-bottom:16px">
+      <div style="font-size:32px">🎓</div>
+      <div><b>Aarav Kumar</b> · ${CURRENT_USER}
+        <div class="mu">B.Tech CSE · 5th sem · <span class="bd ok">Active member</span></div>
+      </div>
+    </div>
+    <div class="tabs">${T.map((t,i) => `<button class="${i===tab?"on":""}" data-tab="${i}">${t}</button>`).join("")}</div>
+    ${body[tab]}`;
+  },
+
+  saved() {
+    return `<h2 class="s">Saved books</h2>
+    ${saved.length
+      ? `<div class="g">${saved.map(i => { const b = bk(i); return b ? card(b) : ""; }).join("")}</div>`
+      : empty("♡","Nothing saved yet","Tap the heart on any book to keep it here.")}`;
+  },
+
+  resources() {
+    return `<h2 class="s">Digital resources</h2>
+    <input id="rq" placeholder="Search e-books, notes, OER…" aria-label="Search resources">
+    <div class="g" id="rr" style="margin-top:16px">${RS.map(rc).join("")}</div>`;
+  },
+
+  rescue() {
+    return `<h2 class="s">🛟 Learning Rescue</h2>
+    <div class="card">
+      <p>Hi! Tell me what you'd like to learn and I'll find the best options you can use right now.</p>
+      <div class="row">
+        <input id="rg" style="flex:2;min-width:200px" placeholder="e.g. learn network security fundamentals" aria-label="Learning goal">
+        <select id="rs" style="flex:1;min-width:140px"><option value="">Any subject</option>
+          ${CAT.map(c => `<option>${c}</option>`).join("")}</select>
+        <button class="btn p" id="rb">Find resources</button>
+      </div>
+    </div>
+    <div id="ro" style="margin-top:16px"></div>`;
+  },
+
+  dashboard() {
+    if (!lib()) return empty("🔒","Permission denied","This area is for librarians only. Switch role in the header to preview.");
+    const tc = BK.reduce((s,b) => s + b.c, 0);
+    const av = BK.reduce((s,b) => s + b.av, 0);
+    const od = loans.filter(l => !l.ret && days(l.due) < 0).length;
+    const S = [["Titles", BK.length],["Copies", tc],["Available", av],
+               ["Active loans", loans.filter(l => !l.ret).length],
+               ["Overdue", od],["Reservations", res.length]];
+    return `<h2 class="s">Librarian dashboard</h2>
+    <div class="g" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+      ${S.map(([a,b]) => `<div class="card"><div class="mu">${a}</div><div class="st">${b}</div></div>`).join("")}
+    </div>
+    <div class="row" style="align-items:flex-start;margin-top:24px">
+      <div class="card" style="flex:1;min-width:280px">
+        <h3>Issue / return</h3>
+        <p class="mu">Scan or type an ISBN and student ID.</p>
+        <div style="display:grid;gap:10px">
+          <input id="ii" placeholder="ISBN (e.g. ${BK[0]?.isbn||""})">
+          <input id="is" placeholder="Student ID (e.g. 21BIT101)">
+          <div class="row">
+            <button class="btn p" id="iss">Issue</button>
+            <button class="btn" id="ret">Return</button>
+            <button class="btn" id="qr">📷 Simulate QR scan</button>
+          </div>
+          <div id="im" class="mu"></div>
+        </div>
+      </div>
+      <div class="card" style="flex:1;min-width:280px">
+        <h3>Inventory by subject</h3>
+        ${CAT.map(c => {
+          const n = BK.filter(b => b.sub === c).reduce((s,b) => s + b.c, 0);
+          const w = tc ? (n / tc * 100 * 2.2) : 0;
+          return `<div class="mu" style="margin-top:8px">${c} · ${n}</div><div class="bar" style="width:${w}%"></div>`;
+        }).join("")}
+      </div>
+    </div>
+    <h2 class="s">Active loans</h2>
+    <div class="card ov"><table>
+      <tr><th>Book</th><th>Student</th><th>Status</th></tr>
+      ${loans.filter(l => !l.ret).map(l => { const b = bk(l.b);
+        return `<tr><td>${b?b.t:"—"}</td><td>${l.s}</td><td>${due(l.due)}</td></tr>`; }).join("")}
+    </table></div>
+    <h2 class="s">Inventory</h2>
+    <div class="card ov"><table>
+      <tr><th>Title</th><th>Shelf</th><th>Copies</th><th>Status</th></tr>
+      ${BK.map(b => `<tr><td>${b.t}</td><td>${b.sh}</td><td>${b.av}/${b.c}</td><td>${badge(b)}</td></tr>`).join("")}
+    </table></div>`;
+  }
+};
+
+/* Resource card renderer (shared) */
+function rc(r) {
+  return `<div class="card">
+    <span class="bd in">${r.type}</span>
+    <h3 style="margin:8px 0 4px;font-size:16px">${r.t}</h3>
+    <div class="mu">${r.sub}</div>
+    <a class="btn" style="margin-top:10px" href="${r.u}" target="_blank" rel="noopener">Open ↗</a>
+  </div>`;
+}
+
+/* ─────────────── Catalogue filter ─────────────── */
+function cat() {
+  const q = $("#cq").value.toLowerCase();
+  const c = $("#cc").value;
+  const a = $("#ca").value;
+  const s = $("#cs").value;
+  let r = BK.filter(b =>
+    (!q || [b.t,b.a,b.sub,b.isbn,...b.tags].join(" ").toLowerCase().includes(q)) &&
+    (!c || b.sub === c) &&
+    (!a || b.av > 0));
+  r.sort((x,y) => s === "y" ? y.y - x.y : x.t.localeCompare(y.t));
+  $("#cr").innerHTML = r.length
+    ? `<div class="mu" style="margin-bottom:10px">${r.length} books</div>
+       <div class="g ${view==="list"?"l":""}">${r.map(card).join("")}</div>`
+    : empty("🔍","No books match","Try different keywords or clear filters.");
+}
+
+/* ─────────────── Learning Rescue ─────────────── */
+function rescue() {
+  const g = $("#rg").value.toLowerCase().split(/\W+/).filter(w => w.length > 2);
+  const s = $("#rs").value;
+  if (!g.length) return toast("Tell me what you want to learn first");
+  const sc = (o, type, av) => {
+    const hit = o.tags.filter(t => g.some(w => t.includes(w) || w.includes(t)));
+    const m   = g.filter(w => (o.t + o.sub).toLowerCase().includes(w));
+    const n   = hit.length*3 + m.length*2 + (s && o.sub === s ? 2 : 0) + (av ? 1 : 0);
+    return { o, type, av, n, hit };
+  };
+  const L = [
+    ...BK.map(b => sc(b, "Book", b.av > 0)),
+    ...RS.map(r => sc(r, r.type, true))
+  ].filter(x => x.n >= 2).sort((a,b) => b.n - a.n).slice(0, 6);
+
+  $("#ro").innerHTML = L.length
+    ? L.map(x => `<div class="card row sp" style="margin-bottom:10px">
+        <div style="flex:1;min-width:220px">
+          <span class="bd in">${x.type}</span> <b>${x.o.t}</b>
+          <div class="mu">${x.o.sub} · Why: matches ${x.hit.slice(0,3).join(", ") || "your topic"}${x.av ? " and is available now" : " (currently issued — reserve it)"}</div>
+        </div>
+        ${x.type === "Book"
+          ? `<a class="btn" href="#/book/${x.o.id}">View</a>`
+          : `<a class="btn" href="${x.o.u}" target="_blank" rel="noopener">Open ↗</a>`}
+      </div>`).join("")
+    : empty("🤔","No close matches yet","Try broader words like “security” or “algorithms”.");
+}
+
+/* ─────────────── Circulation (librarian) ─────────────── */
+function circ(issue) {
+  const i = $("#ii").value.trim();
+  const s = $("#is").value.trim();
+  const m = $("#im");
+  const b = BK.find(x => x.isbn === i);
+  if (!b || !/^\d{2}[A-Z]{3}\d{3}$/.test(s)) {
+    m.innerHTML = `<span class="bd er">✖ Enter a valid ISBN and student ID like 21BIT101</span>`;
+    return;
+  }
+  if (issue) {
+    if (!b.av) { m.innerHTML = `<span class="bd er">✖ No copies available</span>`; return; }
+    b.av--;
+    loans.push({ b: b.id, s, out: ANCHOR_DATE, due: "2026-10-25", ret: "" });
+    toast(`Issued “${b.t}” to ${s}`);
+  } else {
+    const k = loans.findIndex(l => l.b === b.id && l.s === s && !l.ret);
+    if (k < 0) { m.innerHTML = `<span class="bd er">✖ No matching loan</span>`; return; }
+    loans[k].ret = ANCHOR_DATE;
+    b.av++;
+    toast(`Returned “${b.t}”`);
+  }
+  route();
+}
+
+/* ─────────────── Router ─────────────── */
+function route() {
+  const h = (location.hash || "#/").slice(2).split("?")[0].split("/");
+  const p = h[0] || "home";
+  $("#app").innerHTML = (P[p] || (() => empty("🧭","Page not found")))(h[1]);
+  nav();
+  $("#sc").textContent = saved.length || "";
+  $("#sc").style.display = saved.length ? "" : "none";
+
+  if (p === "catalogue") {
+    ["cq","cc","ca","cs"].forEach(i => $("#"+i).oninput = cat);
+    $("#vw").onclick = () => { view = view === "grid" ? "list" : "grid"; route(); };
+    cat();
+  }
+  if (p === "home")
+    $("#hq").onkeydown = e => e.key === "Enter" && (location.hash = "#/catalogue?q=" + encodeURIComponent(e.target.value));
+  if (p === "resources")
+    $("#rq").oninput = e => {
+      const q = e.target.value.toLowerCase();
+      const r = RS.filter(x => (x.t + x.sub + x.tags.join(" ")).toLowerCase().includes(q));
+      $("#rr").innerHTML = r.length ? r.map(rc).join("") : empty("🔍","No resources found");
+    };
+  if (p === "rescue") {
+    $("#rb").onclick = rescue;
+    $("#rg").onkeydown = e => e.key === "Enter" && rescue();
+  }
+  if (p === "dashboard" && lib()) {
+    $("#iss").onclick = () => circ(1);
+    $("#ret").onclick = () => circ(0);
+    $("#qr").onclick = () => {
+      if (BK[0]) { $("#ii").value = BK[0].isbn; $("#is").value = CURRENT_USER; toast("QR scanned — form prefilled"); }
+    };
+  }
+  window.scrollTo(0, 0);
+}
+
+/* ─────────────── Global events ─────────────── */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-save],[data-res],[data-tab]");
+  if (!t) return;
+  if (t.dataset.save) save(+t.dataset.save);
+  if (t.dataset.res)  reserve(+t.dataset.res);
+  if (t.dataset.tab)  { tab = +t.dataset.tab; route(); }
+});
+$("#q").onkeydown = e => e.key === "Enter" && (location.hash = "#/catalogue?q=" + encodeURIComponent(e.target.value));
+$("#role").onchange = e => {
+  role = e.target.value;
+  toast("Viewing as " + role);
+  if (!lib() && location.hash === "#/dashboard") location.hash = "#/";
+  route();
+};
+$("#mn").onclick = () => $("#nav").classList.toggle("open");
+$("#nav").onclick = () => $("#nav").classList.remove("open");
+$("#bell").onclick = () => toast("🔔 1 book due soon · 1 reservation ready");
+window.onhashchange = route;
+
+/* ─────────────── Boot ─────────────── */
+fetchData();
+</script><!-- LibraryX Assistant: start. Self-contained; paste before </body>, AFTER the main <script>. -->
+<style>
+#ax-btn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:56px;height:56px;border-radius:50%;border:0;background:var(--ac);color:#04201C;font-size:26px;cursor:pointer;box-shadow:0 6px 18px #0004;transition:.15s}
+#ax-btn:hover{transform:translateY(-2px)}
+#ax-box{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;width:380px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 120px);display:none;flex-direction:column;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:16px;box-shadow:0 12px 40px #0005;overflow:hidden}
+#ax-box.open{display:flex;animation:f .2s}
+.ax-h{padding:10px 14px;background:var(--ac);color:#04201C;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ax-h b{display:block;font-size:15px}.ax-h small{display:block;font-size:11px;opacity:.8}
+.ax-h button{background:none;border:0;font-size:18px;cursor:pointer;color:inherit}
+#ax-log{flex:1;overflow-y:auto;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.ax-m{max-width:92%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-wrap:break-word}
+.ax-u{align-self:flex-end;background:var(--ac);color:#04201C}
+.ax-b{align-self:flex-start;background:var(--sf);border:1px solid var(--bd)}
+.ax-i{margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--sf2)}
+.ax-i a.t{font-weight:700;display:block;color:var(--ac)}
+.ax-i .bd{margin-top:4px}
+.ax-s{margin-top:10px;font-size:12px;font-weight:700;color:var(--mu)}
+.ax-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ax-chips button{padding:4px 10px;font-size:12px}
+#ax-f{display:flex;gap:8px;padding:10px;border-top:1px solid var(--bd);background:var(--sf)}
+#ax-f input{flex:1;min-width:0;width:auto}
+</style>
+<script>
+(() => {
+  "use strict";
+  const MODEL = "Xenova/all-MiniLM-L6-v2";                                  // open-source embedding model (~25 MB, cached after first load)
+  const LIB = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2";   // runs in the browser, no server needed
+  const MIN_COS = 0.25;   // smart search: how close a match must be (raise for stricter results)
+  const MIN_KW = 0.2;     // keyword fallback: minimum keyword score
+
+  /* ---------- UI ---------- */
+  const root = document.createElement("div");
+  root.innerHTML = `
+    <button id="ax-btn" aria-label="Open library assistant">💬</button>
+    <div id="ax-box" role="dialog" aria-label="Library assistant">
+      <div class="ax-h"><div><b>📚 Library Assistant</b><small id="ax-s"></small></div>
+        <button id="ax-x" aria-label="Close">✕</button></div>
+      <div id="ax-log" aria-live="polite"></div>
+      <form id="ax-f"><input id="ax-in" placeholder="e.g. books on network security" autocomplete="off" aria-label="Ask the assistant"><button class="btn p" type="submit">Send</button></form>
+    </div>`;
+  document.body.append(root);
+  const box = root.querySelector("#ax-box"), log = root.querySelector("#ax-log"),
+        input = root.querySelector("#ax-in"), status = root.querySelector("#ax-s");
+
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const addMsg = (text, who) => {
+    const m = el("div", "ax-m " + (who === "u" ? "ax-u" : "ax-b"), text);
+    log.append(m); log.scrollTop = log.scrollHeight; return m;
+  };
+
+  /* ---------- Text helpers ---------- */
+  const STOP = new Set(["the","and","for","with","about","from","that","this","are","any","some","want","need","like","learn","book","books","read","reading","suggest","recommend","give","show","find","looking","something","please","can","you","how","what","which","best","good","study","topic","subject"]);
+  const stem = w => (w.length > 4 ? w.replace(/(ing|es|s)$/, "") : w);
+  const toks = s => String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.has(w)).map(stem);
+  const hit = (q, set) => set.some(w => w === q || (q.length > 3 && w.length > 3 && (w.startsWith(q) || q.startsWith(w))));
+  const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
+
+  function kwScore(Q, it) {
+    let s = 0;
+    for (const q of Q) {
+      if (hit(q, it.tags)) s += 3;
+      else if (hit(q, it.title) || hit(q, it.auth)) s += 2;
+      else if (hit(q, it.sub)) s += 1.5;
+      else if (hit(q, it.desc)) s += 0.5;
+    }
+    return Math.min(1, s / (2 * Q.length));
+  }
+
+  /* ---------- Index over the data the page already loaded (BK = books, RS = resources) ---------- */
+  let items = [], sig = "", vecs = null, extractor = null, state = "idle"; // idle | loading | ready | failed
+
+  const buildItems = () => [
+    ...BK.map(b => ({ kind: "book", ref: b,
+      text: `${b.t} by ${b.a}. Subject: ${b.sub}. ${b.d || ""} Topics: ${b.tags.join(", ")}`,
+      title: toks(b.t), auth: toks(b.a), sub: toks(b.sub), tags: toks(b.tags.join(" ")), desc: toks(b.d) })),
+    ...RS.map(r => ({ kind: "resource", ref: r,
+      text: `${r.t}. Subject: ${r.sub}. ${r.type}. Topics: ${r.tags.join(", ")}`,
+      title: toks(r.t), auth: [], sub: toks(r.sub), tags: toks(r.tags.join(" ")), desc: toks(r.type) }))
+  ];
+
+  const embed = async texts => (await extractor(texts, { pooling: "mean", normalize: true })).tolist();
+
+  async function refresh() {                       // rebuild when the sheet data changes
+    const s = BK.length + ":" + RS.length;
+    if (s === sig && items.length) return;
+    items = buildItems(); sig = s; vecs = null;
+    if (state === "ready" && items.length) {
+      try { vecs = await embed(items.map(i => i.text)); } catch (e) { console.warn("Assistant: embedding failed", e); }
+    }
+  }
+
+  function setStatus() {
+    status.textContent = state === "ready" ? "Smart search on"
+      : state === "loading" ? "Loading smart search…"
+      : state === "failed" ? "Keyword search" : "";
+  }
+
+  async function loadModel() {                     // runs once, in the background
+    if (state !== "idle") return;
+    state = "loading"; setStatus();
+    try {
+      const mod = await import(LIB);
+      mod.env.allowLocalModels = false;
+      extractor = await mod.pipeline("feature-extraction", MODEL);
+      state = "ready"; sig = "";
+      await refresh();
+    } catch (e) {
+      console.warn("Assistant: smart search unavailable, using keyword search", e);
+      state = "failed";
+    }
+    setStatus();
+  }
+
+  /* ---------- Answering ---------- */
+  function bookRow(b) {
+    const row = el("div", "ax-i");
+    const a = el("a", "t", b.t); a.href = "#/book/" + b.id;
+    row.append(a, el("div", "mu", [b.a, b.sub, b.y].filter(Boolean).join(" · ")));
+    const st = el("div"); st.innerHTML = badge(b);  // badge() is the page's own availability badge
+    row.append(st);
+    if (b.av > 0 && b.sh) row.append(el("div", "mu", "📍 Shelf " + b.sh));
+    return row;
+  }
+  function resourceRow(r) {
+    const row = el("div", "ax-i");
+    const a = el("a", "t", r.t);
+    if (/^https?:\/\//.test(r.u || "")) { a.href = r.u; a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    row.append(a, el("div", "mu", [r.type, r.sub].filter(Boolean).join(" · ")));
+    return row;
+  }
+
+  async function ask(text) {
+    addMsg(text, "u");
+    const out = addMsg("…", "b");
+    try {
+      if (state === "idle") loadModel();
+      if (!BK.length) { out.textContent = "The library data is still loading. Please try again in a moment."; return; }
+      await refresh();
+      const Q = toks(text);
+      if (!Q.length) { out.textContent = "Tell me a topic, subject or author, for example “network security”."; return; }
+      const qv = state === "ready" && vecs ? (await embed([text]))[0] : null;
+
+      const scored = items.map((it, i) => {
+        const kw = kwScore(Q, it);
+        const cos = qv ? dot(qv, vecs[i]) : 0;
+        const ok = qv ? (cos >= MIN_COS || kw >= 0.34) : kw >= MIN_KW;
+        const pen = it.kind === "book" && it.ref.av < 1 ? 0.08 : 0;  // fully issued books rank a little lower
+        return { it, ok, s: cos + 0.6 * kw - pen };
+      }).filter(x => x.ok).sort((a, b) => b.s - a.s);
+
+      const books = scored.filter(x => x.it.kind === "book").slice(0, 4);
+      const rsc = scored.filter(x => x.it.kind === "resource").slice(0, 3);
+
+      if (!books.length && !rsc.length) {
+        out.textContent = "I couldn't find a close match. Try a topic, a subject or an author, or open ";
+        const a = el("a", "t", "Learning Rescue"); a.href = "#/rescue"; out.append(a, document.createTextNode("."));
+        return;
+      }
+      out.textContent = books.length ? "Here are books from our library:" : "No matching books, but these free resources may help:";
+      books.forEach(x => out.append(bookRow(x.it.ref)));
+      if (rsc.length) {
+        if (books.length) out.append(el("div", "ax-s", "Free online resources"));
+        rsc.forEach(x => out.append(resourceRow(x.it.ref)));
+      }
+    } catch (e) {
+      console.error(e);
+      out.textContent = "Sorry, something went wrong. Please try again.";
+    } finally {
+      log.scrollTop = log.scrollHeight;
+    }
+  }
+
+  /* ---------- Events ---------- */
+  const open = () => {
+    box.classList.add("open");
+    if (!log.children.length) {
+      const g = addMsg("Hi! Tell me a topic, subject or author and I'll suggest books and free resources from the library.", "b");
+      const chips = el("div", "ax-chips");
+      ["network security", "learn algorithms", "heat and energy"].forEach(t => {
+        const c = el("button", "btn", t); c.type = "button"; c.onclick = () => ask(t); chips.append(c);
+      });
+      g.append(chips);
+    }
+    loadModel(); input.focus();
+  };
+  const close = () => box.classList.remove("open");
+  root.querySelector("#ax-btn").onclick = () => (box.classList.contains("open") ? close() : open());
+  root.querySelector("#ax-x").onclick = close;
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  log.addEventListener("click", e => { if (e.target.closest("a[href^='#']") && innerWidth < 700) close(); });
+  root.querySelector("#ax-f").onsubmit = e => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (q) { input.value = ""; ask(q); }
+  };
+})();
+</script>
+<!-- LibraryX Assistant: end -->
+
+</body></html>

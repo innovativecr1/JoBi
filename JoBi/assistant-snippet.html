@@ -1,0 +1,203 @@
+<!-- LibraryX Assistant: start. Self-contained; paste before </body>, AFTER the main <script>. -->
+<style>
+#ax-btn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:56px;height:56px;border-radius:50%;border:0;background:var(--ac);color:#04201C;font-size:26px;cursor:pointer;box-shadow:0 6px 18px #0004;transition:.15s}
+#ax-btn:hover{transform:translateY(-2px)}
+#ax-box{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;width:380px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 120px);display:none;flex-direction:column;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:16px;box-shadow:0 12px 40px #0005;overflow:hidden}
+#ax-box.open{display:flex;animation:f .2s}
+.ax-h{padding:10px 14px;background:var(--ac);color:#04201C;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ax-h b{display:block;font-size:15px}.ax-h small{display:block;font-size:11px;opacity:.8}
+.ax-h button{background:none;border:0;font-size:18px;cursor:pointer;color:inherit}
+#ax-log{flex:1;overflow-y:auto;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.ax-m{max-width:92%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-wrap:break-word}
+.ax-u{align-self:flex-end;background:var(--ac);color:#04201C}
+.ax-b{align-self:flex-start;background:var(--sf);border:1px solid var(--bd)}
+.ax-i{margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--sf2)}
+.ax-i a.t{font-weight:700;display:block;color:var(--ac)}
+.ax-i .bd{margin-top:4px}
+.ax-s{margin-top:10px;font-size:12px;font-weight:700;color:var(--mu)}
+.ax-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ax-chips button{padding:4px 10px;font-size:12px}
+#ax-f{display:flex;gap:8px;padding:10px;border-top:1px solid var(--bd);background:var(--sf)}
+#ax-f input{flex:1;min-width:0;width:auto}
+</style>
+<script>
+(() => {
+  "use strict";
+  const MODEL = "Xenova/all-MiniLM-L6-v2";                                  // open-source embedding model (~25 MB, cached after first load)
+  const LIB = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2";   // runs in the browser, no server needed
+  const MIN_COS = 0.25;   // smart search: how close a match must be (raise for stricter results)
+  const MIN_KW = 0.2;     // keyword fallback: minimum keyword score
+
+  /* ---------- UI ---------- */
+  const root = document.createElement("div");
+  root.innerHTML = `
+    <button id="ax-btn" aria-label="Open library assistant">💬</button>
+    <div id="ax-box" role="dialog" aria-label="Library assistant">
+      <div class="ax-h"><div><b>📚 Library Assistant</b><small id="ax-s"></small></div>
+        <button id="ax-x" aria-label="Close">✕</button></div>
+      <div id="ax-log" aria-live="polite"></div>
+      <form id="ax-f"><input id="ax-in" placeholder="e.g. books on network security" autocomplete="off" aria-label="Ask the assistant"><button class="btn p" type="submit">Send</button></form>
+    </div>`;
+  document.body.append(root);
+  const box = root.querySelector("#ax-box"), log = root.querySelector("#ax-log"),
+        input = root.querySelector("#ax-in"), status = root.querySelector("#ax-s");
+
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const addMsg = (text, who) => {
+    const m = el("div", "ax-m " + (who === "u" ? "ax-u" : "ax-b"), text);
+    log.append(m); log.scrollTop = log.scrollHeight; return m;
+  };
+
+  /* ---------- Text helpers ---------- */
+  const STOP = new Set(["the","and","for","with","about","from","that","this","are","any","some","want","need","like","learn","book","books","read","reading","suggest","recommend","give","show","find","looking","something","please","can","you","how","what","which","best","good","study","topic","subject"]);
+  const stem = w => (w.length > 4 ? w.replace(/(ing|es|s)$/, "") : w);
+  const toks = s => String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.has(w)).map(stem);
+  const hit = (q, set) => set.some(w => w === q || (q.length > 3 && w.length > 3 && (w.startsWith(q) || q.startsWith(w))));
+  const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
+
+  function kwScore(Q, it) {
+    let s = 0;
+    for (const q of Q) {
+      if (hit(q, it.tags)) s += 3;
+      else if (hit(q, it.title) || hit(q, it.auth)) s += 2;
+      else if (hit(q, it.sub)) s += 1.5;
+      else if (hit(q, it.desc)) s += 0.5;
+    }
+    return Math.min(1, s / (2 * Q.length));
+  }
+
+  /* ---------- Index over the data the page already loaded (BK = books, RS = resources) ---------- */
+  let items = [], sig = "", vecs = null, extractor = null, state = "idle"; // idle | loading | ready | failed
+
+  const buildItems = () => [
+    ...BK.map(b => ({ kind: "book", ref: b,
+      text: `${b.t} by ${b.a}. Subject: ${b.sub}. ${b.d || ""} Topics: ${b.tags.join(", ")}`,
+      title: toks(b.t), auth: toks(b.a), sub: toks(b.sub), tags: toks(b.tags.join(" ")), desc: toks(b.d) })),
+    ...RS.map(r => ({ kind: "resource", ref: r,
+      text: `${r.t}. Subject: ${r.sub}. ${r.type}. Topics: ${r.tags.join(", ")}`,
+      title: toks(r.t), auth: [], sub: toks(r.sub), tags: toks(r.tags.join(" ")), desc: toks(r.type) }))
+  ];
+
+  const embed = async texts => (await extractor(texts, { pooling: "mean", normalize: true })).tolist();
+
+  async function refresh() {                       // rebuild when the sheet data changes
+    const s = BK.length + ":" + RS.length;
+    if (s === sig && items.length) return;
+    items = buildItems(); sig = s; vecs = null;
+    if (state === "ready" && items.length) {
+      try { vecs = await embed(items.map(i => i.text)); } catch (e) { console.warn("Assistant: embedding failed", e); }
+    }
+  }
+
+  function setStatus() {
+    status.textContent = state === "ready" ? "Smart search on"
+      : state === "loading" ? "Loading smart search…"
+      : state === "failed" ? "Keyword search" : "";
+  }
+
+  async function loadModel() {                     // runs once, in the background
+    if (state !== "idle") return;
+    state = "loading"; setStatus();
+    try {
+      const mod = await import(LIB);
+      mod.env.allowLocalModels = false;
+      extractor = await mod.pipeline("feature-extraction", MODEL);
+      state = "ready"; sig = "";
+      await refresh();
+    } catch (e) {
+      console.warn("Assistant: smart search unavailable, using keyword search", e);
+      state = "failed";
+    }
+    setStatus();
+  }
+
+  /* ---------- Answering ---------- */
+  function bookRow(b) {
+    const row = el("div", "ax-i");
+    const a = el("a", "t", b.t); a.href = "#/book/" + b.id;
+    row.append(a, el("div", "mu", [b.a, b.sub, b.y].filter(Boolean).join(" · ")));
+    const st = el("div"); st.innerHTML = badge(b);  // badge() is the page's own availability badge
+    row.append(st);
+    if (b.av > 0 && b.sh) row.append(el("div", "mu", "📍 Shelf " + b.sh));
+    return row;
+  }
+  function resourceRow(r) {
+    const row = el("div", "ax-i");
+    const a = el("a", "t", r.t);
+    if (/^https?:\/\//.test(r.u || "")) { a.href = r.u; a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    row.append(a, el("div", "mu", [r.type, r.sub].filter(Boolean).join(" · ")));
+    return row;
+  }
+
+  async function ask(text) {
+    addMsg(text, "u");
+    const out = addMsg("…", "b");
+    try {
+      if (state === "idle") loadModel();
+      if (!BK.length) { out.textContent = "The library data is still loading. Please try again in a moment."; return; }
+      await refresh();
+      const Q = toks(text);
+      if (!Q.length) { out.textContent = "Tell me a topic, subject or author, for example “network security”."; return; }
+      const qv = state === "ready" && vecs ? (await embed([text]))[0] : null;
+
+      const scored = items.map((it, i) => {
+        const kw = kwScore(Q, it);
+        const cos = qv ? dot(qv, vecs[i]) : 0;
+        const ok = qv ? (cos >= MIN_COS || kw >= 0.34) : kw >= MIN_KW;
+        const pen = it.kind === "book" && it.ref.av < 1 ? 0.08 : 0;  // fully issued books rank a little lower
+        return { it, ok, s: cos + 0.6 * kw - pen };
+      }).filter(x => x.ok).sort((a, b) => b.s - a.s);
+
+      const books = scored.filter(x => x.it.kind === "book").slice(0, 4);
+      const rsc = scored.filter(x => x.it.kind === "resource").slice(0, 3);
+
+      if (!books.length && !rsc.length) {
+        out.textContent = "I couldn't find a close match. Try a topic, a subject or an author, or open ";
+        const a = el("a", "t", "Learning Rescue"); a.href = "#/rescue"; out.append(a, document.createTextNode("."));
+        return;
+      }
+      out.textContent = books.length ? "Here are books from our library:" : "No matching books, but these free resources may help:";
+      books.forEach(x => out.append(bookRow(x.it.ref)));
+      if (rsc.length) {
+        if (books.length) out.append(el("div", "ax-s", "Free online resources"));
+        rsc.forEach(x => out.append(resourceRow(x.it.ref)));
+      }
+    } catch (e) {
+      console.error(e);
+      out.textContent = "Sorry, something went wrong. Please try again.";
+    } finally {
+      log.scrollTop = log.scrollHeight;
+    }
+  }
+
+  /* ---------- Events ---------- */
+  const open = () => {
+    box.classList.add("open");
+    if (!log.children.length) {
+      const g = addMsg("Hi! Tell me a topic, subject or author and I'll suggest books and free resources from the library.", "b");
+      const chips = el("div", "ax-chips");
+      ["network security", "learn algorithms", "heat and energy"].forEach(t => {
+        const c = el("button", "btn", t); c.type = "button"; c.onclick = () => ask(t); chips.append(c);
+      });
+      g.append(chips);
+    }
+    loadModel(); input.focus();
+  };
+  const close = () => box.classList.remove("open");
+  root.querySelector("#ax-btn").onclick = () => (box.classList.contains("open") ? close() : open());
+  root.querySelector("#ax-x").onclick = close;
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  log.addEventListener("click", e => { if (e.target.closest("a[href^='#']") && innerWidth < 700) close(); });
+  root.querySelector("#ax-f").onsubmit = e => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (q) { input.value = ""; ask(q); }
+  };
+})();
+</script>
+<!-- LibraryX Assistant: end -->
